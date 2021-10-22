@@ -23,8 +23,8 @@ const keymap = {
   'p': {"command": "editor.action.wordHighlightPrev",       "args": {}},
   'mi': {"command": "editor.action.moveLinesUpAction",      "args": {}},
   'mk': {"command": "editor.action.moveLinesDownAction",    "args": {}},
-  'mo': {"command": "editor.action.moveCarretLeftAction",   "args": {}},
-  'mu': {"command": "editor.action.moveCarretRightAction",  "args": {}},
+  'mo': {"command": "editor.action.moveCarretRightAction",  "args": {}},
+  'mu': {"command": "editor.action.moveCarretLeftAction",   "args": {}},
   'dd': {"command": "editor.action.revealDefinition",       "args": {}},
   'dp': {"command": "editor.action.peekDefinition",         "args": {}},
   'dr': {"command": "references-view.findReferences",       "args": {}},
@@ -35,7 +35,6 @@ const keymap = {
   'GT': {"command": "cursorTopSelect",                     "args": {}},
   'gb': {"command": "cursorBottom",                        "args": {}},
   'GB': {"command": "cursorBottomSelect",                  "args": {}},
-  // 'gl': {"command": "workbench.action.gotoLine",           "args": {}},
   'gw': {"command": "jumpToHint.jumpByWord",               "args": {}},
   'gq': {"command": "jumpToHint.jumpBySearch",             "args": {}},
   'gl': {"command": "jumpToHint.jumpByLine",               "args": {}},
@@ -54,6 +53,7 @@ const keymap = {
   's`': {"command": "codereaper.selectBackTick",            "args": {}},
   's.': {"command": "codereaper.selectInTag",               "args": {}},
   'ss': {"command": "editor.action.smartSelect.expand",     "args": {}},
+  'sl': {"command": "expandLineSelection",                  "args": {}},
 
   // multi-cursor
   'ca': {"command": "editor.action.selectHighlights",       "args": {}},
@@ -66,10 +66,14 @@ const keymap = {
   // fuzzy search
   'f': {"command": "workbench.action.quickOpen",            "args": {}},
   '/': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchContent"}},
-  '?': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchFiles"}}
+  '?': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchFiles"}},
+
+  // editor split
+  '\\': {"command": "workbench.action.splitEditor",            "args": {}},
+  '|': {"command": "workbench.action.splitEditorOrthogonal",   "args": {}}
 };
 
-const persistentParents = new Set(['m']);
+const persistentParents = new Set(['m', 'c']);
 
 // function to generate tree of key shortcuts
 function getKeymapTree()
