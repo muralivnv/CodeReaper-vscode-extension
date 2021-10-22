@@ -1,0 +1,8 @@
+.vscode/*
+node_modules/*
+.eslintrc.json
+.vscodeignore
+CHANGELOG.md
+ProjectPlan.md
+vsc-extension-quickstart.md
+README.md
