@@ -92,7 +92,11 @@ async function onType(event)
 
   if (!keyNode)
   {
-    resetInputKeyTreeState(); 
+    const lastParent = lastKeyName;
+    resetInputKeyTreeState();
+    
+    if (persistentParents.has(lastParent))
+    { onType(event); }
     return;
   }
 
