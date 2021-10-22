@@ -1,0 +1,52 @@
+{
+	"name": "codereaper",
+	"displayName": "CodeReaper",
+	"description": "",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.61.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:codereaper.toggle"
+	],
+	"main": "./src/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "codereaper.toggle",
+				"title": "Code Reaper Toggle"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "codereaper.toggle",
+				"key": "alt+q",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "codereaper.clearInput",
+				"key": "escape",
+				"when": "editorTextFocus && codereaper.isInNavigationMode"
+			}
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.61.0",
+		"@types/glob": "^7.1.4",
+		"@types/mocha": "^9.0.0",
+		"@types/node": "14.x",
+		"eslint": "^7.32.0",
+		"glob": "^7.1.7",
+		"mocha": "^9.1.1",
+		"typescript": "^4.4.3",
+		"@vscode/test-electron": "^1.6.2"
+	}
+}
