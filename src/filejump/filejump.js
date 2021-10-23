@@ -6,7 +6,7 @@ const Fuse = require('fuse.js');
 const nMRUTabs = 20;
 const hintCharList = "fjdkghsla;ruvmeic,tybnwox.qpz";
 const fileSearchIncludeGlob = "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml}"
-const fileSearchExcludeGlob = "**/{node_modules,Core}/**"
+const fileSearchExcludeGlob = "**/{node_modules}/**"
 
 // configuration
 const jumpToTabId = 'codereaper.jumpToTab';
