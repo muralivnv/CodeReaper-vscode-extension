@@ -142,7 +142,8 @@ async function jumpToFile()
   const files = await vscode.workspace.findFiles(fileSearchIncludeGlob, fileSearchExcludeGlob);
 
   // set up fuzzy search
-  const options = { includeScore: true, keys: ['fsPath'], 
+  const options = { includeScore: true, 
+                    keys: ['fsPath'], 
                     threshold: 0.8,
                     ignoreLocation: true, 
                     findAllMatches: true, 
@@ -155,7 +156,7 @@ async function jumpToFile()
   let quickPick = vscode.window.createQuickPick();
 
   quickPick.onDidChangeValue(e => {
-    let items = undefined;
+    let items = {};
     if (e.length >= 3)
     {
       const results = fuse.search(e);
@@ -163,8 +164,6 @@ async function jumpToFile()
       for (let i in results)
       { items.push(results[i].item.fsPath); }
     }
-    if (!items) { items = {}; }
-    
     quickPick.items = Object.keys(items).map(label => ({label: `${path.basename(items[label])}`, 
                                                         description: `${vscode.workspace.asRelativePath(path.dirname(items[label]))}`, 
                                                         alwaysShow: true}));
@@ -173,15 +172,13 @@ async function jumpToFile()
   quickPick.onDidAccept(()=>{
     quickPick.selectedItems.forEach(e => {
       let dirname = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, e.description);
-      let filename = e.label ;//(e.label.split('~')[1]).trimStart();
+      let filename = e.label;
       vscode.workspace.openTextDocument(path.join(dirname, filename)).then(doc => vscode.window.showTextDocument(doc, { preview: false }));
     })
   });
 
   quickPick.onDidHide(() => quickPick.dispose());
   quickPick.show();
-
-
 }
 
 function generateFixedLenHints(count, hintLen)
