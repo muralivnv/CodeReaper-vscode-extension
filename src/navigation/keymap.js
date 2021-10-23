@@ -63,10 +63,13 @@ const keymap = {
   'cn': {"command": "editor.action.moveSelectionToNextFindMatch", "args": {}},
   'cp': {"command": "editor.action.moveSelectionToPreviousFindMatch", "args": {}},
 
+  
   // fuzzy search
-  'f': {"command": "workbench.action.quickOpen",            "args": {}},
-  '/': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchContent"}},
-  '?': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchFiles"}},
+  // custom file selection
+  '/t': {"command": "codereaper.jumpToTab",                  "args": {}},
+  '/f': {"command": "codereaper.jumpToFile",                 "args": {}},
+  // '?': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchFiles"}},
+  '/c': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchContent"}},
 
   // editor split
   '\\': {"command": "workbench.action.splitEditor",            "args": {}},
