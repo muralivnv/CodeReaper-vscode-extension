@@ -66,8 +66,10 @@ const keymap = {
   
   // fuzzy search
   // custom file selection
-  't': {"command": "codereaper.jumpToTab",                  "args": {}},
-  '?': {"command": "codereaper.jumpToFile",                 "args": {}},
+  'tt': {"command": "codereaper.jumpToTab",                  "args": {}},
+  'tn': {"command": "workbench.action.nextEditor",           "args": {}},
+  'tp': {"command": "workbench.action.previousEditor",       "args": {}},
+  '?': {"command": "codereaper.jumpToFile",                  "args": {}},
   // '?': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchFiles"}},
   '/': {"command": "extension.multiCommand.execute",        "args": {"command": "multiCommand.fuzzySearchContent"}},
 
