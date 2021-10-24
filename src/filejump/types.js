@@ -6,10 +6,10 @@ class MRUTabs
     this.maxSize_ = maxSize;
   }
   
-  add(docURI)
+  add(docURI, value)
   {
     this.remove(docURI);
-    this.mruTabs_.set(docURI, undefined);
+    this.mruTabs_.set(docURI, value);
     this.clampBuffer();
   }
 
@@ -18,6 +18,9 @@ class MRUTabs
     if (docURI in this.mruTabs_)
     {  this.mruTabs_.delete(docURI);  }
   }
+
+  get(docURI)
+  {  return this.mruTabs_.get(docURI);  }
 
   clampBuffer()
   {

@@ -26,7 +26,7 @@ function register(context)
 
   // register listeners to maintain MRU Tabs List
   vscode.window.onDidChangeActiveTextEditor(e => {
-    mruTabsList.add(e.document.uri.fsPath);
+    mruTabsList.add(e.document.uri.fsPath, e);
   });
 
   vscode.workspace.onDidCloseTextDocument(d => {
@@ -68,9 +68,10 @@ function jumpToTab()
 
   quickPick.onDidAccept(()=>{
     quickPick.selectedItems.forEach(e => {
-      let dirname = e.description;
-      let filename = (e.label.split('~')[1]).trimStart();
-      vscode.workspace.openTextDocument(path.join(dirname, filename)).then(doc => vscode.window.showTextDocument(doc, { preview: false }));
+      const dirname = e.description;
+      const filename = (e.label.split('~')[1]).trimStart();
+      const targetEditor = mruTabsList.get(path.join(dirname, filename));
+      vscode.window.showTextDocument(targetEditor.document);
     })
   });
   
