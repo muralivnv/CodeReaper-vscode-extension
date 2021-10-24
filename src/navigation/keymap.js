@@ -53,6 +53,7 @@ const keymap = {
   's`': {"command": "codereaper.selectBackTick",            "args": {}},
   's.': {"command": "codereaper.selectInTag",               "args": {}},
   'ss': {"command": "editor.action.smartSelect.expand",     "args": {}},
+  'sS': {"command": "editor.action.smartSelect.shrink",     "args": {}},
   'sl': {"command": "expandLineSelection",                  "args": {}},
 
   // multi-cursor
@@ -62,7 +63,6 @@ const keymap = {
   'cc': {"command": "editor.action.addSelectionToNextFindMatch", "args": {}},
   'cn': {"command": "editor.action.moveSelectionToNextFindMatch", "args": {}},
   'cp': {"command": "editor.action.moveSelectionToPreviousFindMatch", "args": {}},
-
   
   // fuzzy search
   // custom file selection
