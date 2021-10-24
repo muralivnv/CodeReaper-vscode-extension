@@ -2,8 +2,10 @@ let vscode = require('vscode');
 let path   = require('path');
 const Fuse = require('fuse.js');
 
+let { MRUTabs } = require('./types');
+
 // constants
-const nMRUTabs = 20;
+const maxMRUTabs = 20;
 const hintCharList = "fjdkghsla;ruvmeic,tybnwox.qpz";
 const fileSearchIncludeGlob = "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml}"
 const fileSearchExcludeGlob = "**/{node_modules}/**"
@@ -13,68 +15,7 @@ const jumpToTabId = 'codereaper.jumpToTab';
 const jumpToFileId = 'codereaper.jumpToFile';
 
 // global variables
-class MRUTabs 
-{
-
-  constructor()
-  {
-    this.docs = new Map();
-    this.mruTabs  = [];
-  }
-  
-  add(docURI)
-  {
-    if (docURI in this.docs)
-    { 
-      // get the index in the array
-      const docIndex = this.docs[docURI];
-      
-      // remove this document from the list
-      this.mruTabs.splice(docIndex, 1);
-    }
-
-    // add this do at the beginning of the array
-    this.docs[docURI] = 0;
-    this.mruTabs.unshift(docURI);
-
-    this.clampBuffer();
-    this.updateMapIndex();
-  }
-
-  remove(docURI)
-  {
-    if (docURI in this.docs)
-    {
-      // get the index in the array
-      const docIndex = this.docs[docURI];
-      
-      // remove this document from the list
-      this.mruTabs.splice(docIndex, 1);
-      delete this.docs[docURI];
-      this.updateMapIndex();
-    }
-  }
-
-  clampBuffer()
-  {
-    while (this.mruTabs.length > nMRUTabs)
-    {
-      const lruDoc = this.mruTabs.pop();
-      delete this.docs[lruDoc];
-    }
-  }
-
-  updateMapIndex()
-  {
-    for (let i = 0; i < this.mruTabs.length; i++)
-    { this.docs[this.mruTabs[i]] = i; }
-  }
-
-  getMRUTabs()
-  { return this.mruTabs; }
-}
-
-let mruTabsList = new MRUTabs();
+let mruTabsList = new MRUTabs(maxMRUTabs);
 
 function register(context)
 {
@@ -104,7 +45,7 @@ function jumpToTab()
                                                           description: `${vscode.workspace.asRelativePath(path.dirname(knownDocs[label]))}`, 
                                                           alwaysShow: true}));
   // set up fuzzy search
-  const options = { includeScore: true, keys: ['label', 'description'] };
+  const options = { includeScore: false, keys: ['label', 'description'] };
   // @ts-ignore
   const fuse = new Fuse(searcheable, options);
 
@@ -142,7 +83,7 @@ async function jumpToFile()
   const files = await vscode.workspace.findFiles(fileSearchIncludeGlob, fileSearchExcludeGlob);
 
   // set up fuzzy search
-  const options = { includeScore: true, 
+  const options = { includeScore: false, 
                     keys: ['fsPath'], 
                     threshold: 0.8,
                     ignoreLocation: true, 
