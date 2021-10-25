@@ -22,6 +22,9 @@ class MRUTabs
   get(docURI)
   {  return this.mruTabs_.get(docURI);  }
 
+  setMaxSize(size)
+  { this.maxSize_ = size; this.clampBuffer(); }
+
   clampBuffer()
   {
     if (this.mruTabs_.size <= this.maxSize_)

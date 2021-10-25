@@ -5,10 +5,10 @@ const Fuse = require('fuse.js');
 let { MRUTabs } = require('./types');
 
 // constants
-const maxMRUTabs = 20;
-const hintCharList = "fjdkghsla;ruvmeic,tybnwox.qpz";
-const fileSearchIncludeGlob = "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}"
-const fileSearchExcludeGlob = "**/{node_modules}/**"
+let maxMRUTabs = 10; // default, will be updated later based on user-configuration
+let hintCharList = "fjdkghsla;ruvmeic,tybnwox.qpz"; // default, will be updated later based on user-configuration
+let fileSearchIncludeGlob = "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}"; // default, will be updated later based on user-configuration
+let fileSearchExcludeGlob = "**/{node_modules}/**"; // default, will be updated later based on user-configuration
 
 // configuration
 const jumpToTabId = 'codereaper.jumpToTab';
@@ -21,7 +21,8 @@ function register(context)
 {
   context.subscriptions.push(
     vscode.commands.registerCommand(jumpToTabId, jumpToTab),
-    vscode.commands.registerCommand(jumpToFileId, jumpToFile)
+    vscode.commands.registerCommand(jumpToFileId, jumpToFile),
+    vscode.workspace.onDidChangeConfiguration(updateConfig)
   );
 
   // register listeners to maintain MRU Tabs List
@@ -35,6 +36,19 @@ function register(context)
   vscode.workspace.onDidCloseTextDocument(d => {
     mruTabsList.remove(d.uri.fsPath);
   });
+
+  updateConfig();
+}
+
+function updateConfig()
+{
+  const codereaper = vscode.workspace.getConfiguration("codereaper");
+
+  maxMRUTabs = codereaper.get("maxMRUTabsLen");
+  hintCharList = codereaper.get("tabHintCharList");
+  fileSearchIncludeGlob = codereaper.get("fileSearchIncludeGlob");
+  fileSearchExcludeGlob = codereaper.get("fileSearchExcludeGlob");
+  mruTabsList.setMaxSize(maxMRUTabs);
 }
 
 function jumpToTab()

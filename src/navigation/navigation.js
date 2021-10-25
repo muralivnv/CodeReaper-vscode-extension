@@ -1,9 +1,12 @@
 // imports
 let vscode = require('vscode');
-const { getKeymapTree, persistentParents } = require('./keymap');
+const { getKeymapTree } = require('./utility');
 
-// global variables
-const keymapTree = getKeymapTree();
+// configuration variables
+let keymapTree        = undefined; // will be read from user configuration
+let persistentParents = undefined; // will be read from user configuration
+let navigationModeStatusBarText = undefined; // will be read from user configuration
+let editModeStatusBarText = undefined; // will be read from user configuration
 
 let isInNavigationMode = false;
 let typeSubscriptions  = undefined;
@@ -14,8 +17,6 @@ let lastKeyNode        = undefined;
 // constants
 const navigationModeCursorStyle   = vscode.TextEditorCursorStyle.Block;
 const editModeCursorStyle         = vscode.TextEditorCursorStyle.Line;
-const navigationModeStatusBarText = "🐒";
-const editModeStatusBarText       = "🐑";
 
 // navigation API configuration
 const toggleId    = "codereaper.toggle";
@@ -31,14 +32,26 @@ function register (context)
   // setup all subscriptions
   context.subscriptions.push(
     vscode.commands.registerCommand(toggleId, modeToggle),
-    vscode.commands.registerCommand(clearInputId, clearInput)
+    vscode.commands.registerCommand(clearInputId, clearInput),
+    vscode.workspace.onDidChangeConfiguration(updateConfig)
   );
 
   context.subscriptions.push(statusBarItem);
 
   // initialization
+  updateConfig();
   switchToEditMode();
   resetInputKeyTreeState();
+}
+
+function updateConfig()
+{
+  const codereaper = vscode.workspace.getConfiguration("codereaper");
+
+  keymapTree = getKeymapTree(codereaper.get("keymap"));
+  persistentParents = new Set(codereaper.get("stickyParentKeys"));
+  navigationModeStatusBarText = codereaper.get("navigationModeIdentifier");
+  editModeStatusBarText = codereaper.get("editModeIdentifier");
 }
 
 // helper functions
