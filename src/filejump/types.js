@@ -15,8 +15,8 @@ class MRUTabs
 
   remove(docURI)
   {
-    if (docURI in this.mruTabs_)
-    {  this.mruTabs_.delete(docURI);  }
+    if (this.mruTabs_.has(docURI))
+    { this.mruTabs_.delete(docURI); }
   }
 
   get(docURI)
@@ -24,6 +24,9 @@ class MRUTabs
 
   clampBuffer()
   {
+    if (this.mruTabs_.size <= this.maxSize_)
+    { return; }
+    
     const keys = [...this.mruTabs_.keys()];
     while (this.mruTabs_.size > this.maxSize_)
     {

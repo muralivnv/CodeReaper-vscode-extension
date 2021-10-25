@@ -7,7 +7,7 @@ let { MRUTabs } = require('./types');
 // constants
 const maxMRUTabs = 20;
 const hintCharList = "fjdkghsla;ruvmeic,tybnwox.qpz";
-const fileSearchIncludeGlob = "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml}"
+const fileSearchIncludeGlob = "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}"
 const fileSearchExcludeGlob = "**/{node_modules}/**"
 
 // configuration
@@ -26,7 +26,10 @@ function register(context)
 
   // register listeners to maintain MRU Tabs List
   vscode.window.onDidChangeActiveTextEditor(e => {
-    mruTabsList.add(e.document.uri.fsPath, e);
+    try
+    { mruTabsList.add(e.document.uri.fsPath, e); }
+    catch(err)
+    { console.log(err); }
   });
 
   vscode.workspace.onDidCloseTextDocument(d => {
@@ -68,10 +71,9 @@ function jumpToTab()
 
   quickPick.onDidAccept(()=>{
     quickPick.selectedItems.forEach(e => {
-      const dirname = e.description;
+      const dirname = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, e.description);
       const filename = (e.label.split('~')[1]).trimStart();
-      const targetEditor = mruTabsList.get(path.join(dirname, filename));
-      vscode.window.showTextDocument(targetEditor.document);
+      vscode.workspace.openTextDocument(path.join(dirname, filename)).then(doc => vscode.window.showTextDocument(doc, { preview: false }));
     })
   });
   
