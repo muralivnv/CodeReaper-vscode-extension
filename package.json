@@ -3,7 +3,7 @@
 	"displayName": "Code Reaper",
 	"description": "",
 	"version": "1.0.0",
-	"publisher": "Murali VNV",
+	"publisher": "muralivnv",
 	"repository": { 
 		"url": "https://github.com/muralivnv/CodeReaper-vscode-extension" 
 	},
@@ -14,9 +14,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:codereaper.toggle",
-		"onCommand:codereaper.jumpToTab",
-		"onCommand:codereaper.jumpToFile"
+		"*"
 	],
 	"extensionKind": [
 		"ui",

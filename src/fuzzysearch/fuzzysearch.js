@@ -1,5 +1,5 @@
 let vscode = require('vscode');
-let { tmpdir } = require('os');
+let { tmpdir, platform } = require('os');
 let {join} = require('path');
 let {writeFileSync, watch, rmSync, readFile} = require('fs');
 
@@ -85,9 +85,20 @@ function createTerminal()
   term = vscode.window.createTerminal({
     name: "FuzzySearch", 
     hideFromUser: true,
-    shellPath: "cmd.exe",
+    shellPath: getShell(),
     cwd: vscode.workspace.workspaceFolders[0].uri.fsPath
   });
+}
+
+function getShell()
+{
+  const curPlatform = platform();
+  if (platform() == 'win32')
+  { return "cmd.exe"; }
+  else if (curPlatform == 'linux')
+  { return "bash"; }
+  else 
+  { return undefined; }
 }
 
 function getFZFCmdContents()
