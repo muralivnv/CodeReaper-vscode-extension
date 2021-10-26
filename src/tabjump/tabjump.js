@@ -7,12 +7,9 @@ let { MRUTabs } = require('./types');
 // constants
 let maxMRUTabs = 10; // default, will be updated later based on user-configuration
 let hintCharList = "fjdkghsla;ruvmeic,tybnwox.qpz"; // default, will be updated later based on user-configuration
-let fileSearchIncludeGlob = "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}"; // default, will be updated later based on user-configuration
-let fileSearchExcludeGlob = "**/{node_modules}/**"; // default, will be updated later based on user-configuration
 
 // configuration
 const jumpToTabId = 'codereaper.jumpToTab';
-const jumpToFileId = 'codereaper.jumpToFile';
 
 // global variables
 let mruTabsList = new MRUTabs(maxMRUTabs);
@@ -21,7 +18,6 @@ function register(context)
 {
   context.subscriptions.push(
     vscode.commands.registerCommand(jumpToTabId, jumpToTab),
-    vscode.commands.registerCommand(jumpToFileId, jumpToFile),
     vscode.workspace.onDidChangeConfiguration(updateConfig)
   );
 
@@ -46,8 +42,8 @@ function updateConfig()
 
   maxMRUTabs = codereaper.get("maxMRUTabsLen");
   hintCharList = codereaper.get("tabHintCharList");
-  fileSearchIncludeGlob = codereaper.get("fileSearchIncludeGlob");
-  fileSearchExcludeGlob = codereaper.get("fileSearchExcludeGlob");
+  // fileSearchIncludeGlob = codereaper.get("fileSearchIncludeGlob");
+  // fileSearchExcludeGlob = codereaper.get("fileSearchExcludeGlob");
   mruTabsList.setMaxSize(maxMRUTabs);
 }
 
@@ -91,50 +87,6 @@ function jumpToTab()
     })
   });
   
-  quickPick.onDidHide(() => quickPick.dispose());
-  quickPick.show();
-}
-
-async function jumpToFile()
-{
-  const files = await vscode.workspace.findFiles(fileSearchIncludeGlob, fileSearchExcludeGlob);
-
-  // set up fuzzy search
-  const options = { includeScore: false, 
-                    keys: ['fsPath'], 
-                    threshold: 0.8,
-                    ignoreLocation: true, 
-                    findAllMatches: true, 
-                    useExtendedSearch: true
-                  };
-  // @ts-ignore
-  const fuse = new Fuse(files, options);
-
-  // set up quick-pick
-  let quickPick = vscode.window.createQuickPick();
-
-  quickPick.onDidChangeValue(e => {
-    let items = {};
-    if (e.length >= 3)
-    {
-      const results = fuse.search(e);
-      items = [];
-      for (let i in results)
-      { items.push(results[i].item.fsPath); }
-    }
-    quickPick.items = Object.keys(items).map(label => ({label: `${path.basename(items[label])}`, 
-                                                        description: `${vscode.workspace.asRelativePath(path.dirname(items[label]))}`, 
-                                                        alwaysShow: true}));
-  });
-
-  quickPick.onDidAccept(()=>{
-    quickPick.selectedItems.forEach(e => {
-      let dirname = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, e.description);
-      let filename = e.label;
-      vscode.workspace.openTextDocument(path.join(dirname, filename)).then(doc => vscode.window.showTextDocument(doc, { preview: false }));
-    })
-  });
-
   quickPick.onDidHide(() => quickPick.dispose());
   quickPick.show();
 }
