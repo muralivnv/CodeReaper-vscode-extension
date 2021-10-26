@@ -42,8 +42,6 @@ function updateConfig()
 
   maxMRUTabs = codereaper.get("maxMRUTabsLen");
   hintCharList = codereaper.get("tabHintCharList");
-  // fileSearchIncludeGlob = codereaper.get("fileSearchIncludeGlob");
-  // fileSearchExcludeGlob = codereaper.get("fileSearchExcludeGlob");
   mruTabsList.setMaxSize(maxMRUTabs);
 }
 

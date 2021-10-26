@@ -27,19 +27,23 @@
 		"commands": [
 			{
 				"command": "codereaper.toggle",
-				"title": "Code Reaper Toggle"
+				"title": "[CodeReaper] Toggle"
 			},
 			{
 				"command": "codereaper.clearInput",
-				"title": "Clears selection/multi-cursors in Navigation Mode"
+				"title": "[CodeReaper] Clear selection/multi-cursors in Navigation Mode"
 			},
 			{
 				"command": "codereaper.jumpToTab",
-				"title": "List and fuzzy search most-recently-used tabs and quickly jump to them"
+				"title": "[CodeReaper] List and fuzzy search most-recently-used tabs and quickly jump to them"
 			},
 			{
-				"command": "codereaper.jumpToFile",
-				"title": "list and fuzzy search workspace files and quick jump to them"
+				"command": "codereaper.fuzzySearchFiles",
+				"title": "[CodeReaper] Fuzzy search for files and jump to them"
+			},
+			{
+				"command": "codereaper.fuzzySearchFileContents",
+				"title": "[CodeReaper] Fuzzy search for content and jump to them"
 			}
 		],
 
@@ -131,8 +135,8 @@
 						"tp": {"command": "workbench.action.previousEditor",       "args": {}},
 						"tx": {"command": "workbench.action.closeActiveEditor",    "args": {}},
 
-						"?": {"command": "codereaper.jumpToFile",                  "args": {}},
-						"/": {"command": "extension.multiCommand.execute",         "args": {"command": "multiCommand.fuzzySearchContent"}},
+						"?": {"command": "codereaper.fuzzySearchFiles",            "args": {}},
+						"/": {"command": "codereaper.fuzzySearchFileContents",     "args": {}},
 						
 						"\\": {"command": "workbench.action.splitEditor",            "args": {}},
 						"|": {"command": "workbench.action.splitEditorOrthogonal",   "args": {}}
@@ -163,15 +167,35 @@
 					"description": "Characters to use to hint when displaying MRU tabs",
 					"default": "fjdkghsla;ruvmeic,tybnwox.qpz"
 				},
-				"codereaper.fileSearchIncludeGlob": {
+				"codereaper.ripgrepPath":{
+					"type": "string",
+					"description": "Path to Ripgrep",
+					"default": "rg"
+				},
+				"codereaper.fzfPath": {
+					"type": "string",
+					"description": "Path to FZF",
+					"default": "fzf"
+				},
+				"codereaper.fuzzySearchIncludeGlob": {
 					"type": "string",
 					"description": "Glob to use while fuzzy searching for files",
 					"default": "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}"
 				},
-				"codereaper.fileSearchExcludeGlob": {
+				"codereaper.fuzzySearchExcludeGlob": {
 					"type": "string",
 					"description": "Glob to exclude while fuzzy searching for files",
-					"default": "**/{node_modules}/**"
+					"default": "!**/{node_modules}/**"
+				},
+				"codereaper.fuzzySearchContentRegExp": {
+					"type": "string",
+					"description": "Regular Expression to use which fuzzy search file contents",
+					"default": "\"^\\s*\\w+(\\w+(?!^\\s*(//|/\\*|#|<!--|;|-)))\""
+				},
+				"codereaper.fzfOptions": {
+					"type": "string",
+					"description": "FZF options",
+					"default": "--algo=v2 --color hl:221,hl+:74 --color hl:221,hl+:74 --margin 1% --border"
 				}
 			}
 		}
