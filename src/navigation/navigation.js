@@ -115,7 +115,7 @@ async function onType(event)
 
   if (editor && ("command" in keyNode))
   {
-    vscode.commands.executeCommand(keyNode.command, keyNode.args);  
+    await vscode.commands.executeCommand(keyNode.command, keyNode.args);  
     
     if (!persistentParents.has(lastKeyName))
     { resetInputKeyTreeState(); }
