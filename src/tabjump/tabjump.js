@@ -13,6 +13,7 @@ const jumpToTabId = 'codereaper.jumpToTab';
 
 // global variables
 let mruTabsList = new MRUTabs(maxMRUTabs);
+let lastTab = undefined;
 
 function register(context)
 {
@@ -24,13 +25,21 @@ function register(context)
   // register listeners to maintain MRU Tabs List
   vscode.window.onDidChangeActiveTextEditor(e => {
     try
-    { mruTabsList.add(e.document.uri.fsPath, e); }
+    {
+      const _ = lastTab?mruTabsList.add(lastTab, undefined):undefined;
+      lastTab = e.document.uri.fsPath;
+      mruTabsList.remove(e.document.uri.fsPath);
+    }
     catch(err)
     { console.log(err); }
   });
 
   vscode.workspace.onDidCloseTextDocument(d => {
-    mruTabsList.remove(d.uri.fsPath);
+    const file = d.uri.fsPath;
+    mruTabsList.remove(file);
+    
+    if (file == lastTab)
+    { lastTab = undefined; }
   });
 
   updateConfig();
