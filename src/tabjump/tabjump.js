@@ -90,7 +90,10 @@ function jumpToTab()
     quickPick.selectedItems.forEach(e => {
       const dirname = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, e.description);
       const filename = (e.label.split('~')[1]).trimStart();
-      vscode.workspace.openTextDocument(path.join(dirname, filename)).then(doc => vscode.window.showTextDocument(doc, { preview: false }));
+      
+      vscode.window.showTextDocument(
+        vscode.Uri.file( path.join(dirname, filename) ),
+        { preview: false});      
     })
   });
   

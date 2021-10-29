@@ -2,7 +2,7 @@
 	"name": "codereaper",
 	"displayName": "Code Reaper",
 	"description": "",
-	"version": "1.0.2",
+	"version": "1.0.4",
 	"publisher": "muralivnv",
 	"repository": { 
 		"url": "https://github.com/muralivnv/CodeReaper-vscode-extension" 
@@ -194,7 +194,7 @@
 				"codereaper.fzfOptions": {
 					"type": "string",
 					"description": "FZF options",
-					"default": "--algo=v2 --color hl:221,hl+:74 --color hl:221,hl+:74 --margin 1% --border"
+					"default": "--algo=v2 --color hl:221,hl+:74 --margin 1% --border"
 				}
 			}
 		}
