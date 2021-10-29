@@ -6,7 +6,7 @@ let { MRUTabs } = require('./types');
 
 // constants
 let maxMRUTabs = 10; // default, will be updated later based on user-configuration
-let hintCharList = "fjdkghsla;ruvmeic,tybnwox.qpz"; // default, will be updated later based on user-configuration
+let hintCharList = "werdfcv"; // default, will be updated later based on user-configuration
 
 // configuration
 const jumpToTabId = 'codereaper.jumpToTab';

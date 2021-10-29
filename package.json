@@ -164,7 +164,7 @@
 				"codereaper.tabHintCharList": {
 					"type": "string",
 					"description": "Characters to use to hint when displaying MRU tabs",
-					"default": "fjdkghsla;ruvmeic,tybnwox.qpz"
+					"default": "werdfcv"
 				},
 				"codereaper.ripgrepPath":{
 					"type": "string",
