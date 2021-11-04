@@ -33,7 +33,8 @@ function register (context)
   context.subscriptions.push(
     vscode.commands.registerCommand(toggleId, modeToggle),
     vscode.commands.registerCommand(clearInputId, clearInput),
-    vscode.workspace.onDidChangeConfiguration(updateConfig)
+    vscode.workspace.onDidChangeConfiguration(updateConfig),
+    vscode.window.onDidChangeActiveTextEditor(e => updateCursorState(e))
   );
 
   context.subscriptions.push(statusBarItem);

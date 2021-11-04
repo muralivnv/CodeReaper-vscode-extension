@@ -1,6 +1,7 @@
 let vscode = require('vscode');
 let path   = require('path');
 const Fuse = require('fuse.js');
+const {existsSync} = require('fs');
 
 let { MRUTabs } = require('./types');
 
@@ -57,7 +58,7 @@ function updateConfig()
 function jumpToTab()
 {
   // get list of known text docs
-  let knownDocs = mruTabsList.getMRUTabs() ;
+  let knownDocs = mruTabsList.getMRUTabs();
   let docHints = generateFixedLenHints(knownDocs.length, Math.ceil(knownDocs.length/10.0));
 
   // combine hints and docs together
@@ -88,11 +89,16 @@ function jumpToTab()
 
   quickPick.onDidAccept(()=>{
     quickPick.selectedItems.forEach(e => {
-      const dirname = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, e.description);
+      const dirname = e.description;
       const filename = (e.label.split('~')[1]).trimStart();
+      let fullPath = path.join(dirname, filename)
+
+      // in case the file is not from workspace folder don't prematurely append workspace folder
+      if (!existsSync(fullPath))
+      { fullPath = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, fullPath); }
       
       vscode.window.showTextDocument(
-        vscode.Uri.file( path.join(dirname, filename) ),
+        vscode.Uri.file( fullPath ),
         { preview: false});      
     })
   });
