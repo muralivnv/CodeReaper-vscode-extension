@@ -11,7 +11,8 @@ let fuzzySearchExcludeGlob = undefined;
 let fuzzySearchContentRegExp = undefined;
 let fzfOptions = undefined;
 
-const searchResultOutFile = join(tmpdir(), "vscode_fuzzysearch.tmp");
+const milliseconds = (new Date()).getTime();
+const searchResultOutFile = join(tmpdir(), `vscode_fuzzysearch_${milliseconds.toString()}.tmp`);
 const fuzzySearchFileId = "codereaper.fuzzySearchFiles";
 const fuzzySearchFileContentId = "codereaper.fuzzySearchFileContents";
 
@@ -121,8 +122,13 @@ function handleSelection()
     
     const isDataGood = (data.length > 0) && (data[0] != '1');
     if (isDataGood)
-    { openFiles(data); term?.hide(); }
-    
+    {
+      try
+      {  openFiles(data);  }
+      catch (error)
+      {  console.error(error);  }
+      term?.hide();
+    }
   });
 }
 
@@ -131,17 +137,23 @@ function openFiles(data)
   const filePaths = data.split('\n').filter(s => s !== '');
   filePaths.forEach(p => {
     const [file, lineTmp, charTmp] = p.split(':', 3);
-    let line = 0, char = 0;
-    let range = new vscode.Range(0, 0, 0, 0);
+    let line = undefined, char = 0;
+    // let range = new vscode.Range(0, 0, 0, 0);
     if (lineTmp !== undefined) {
         if (charTmp !== undefined) {
             char = parseInt(charTmp) - 1;  // 1 based in rg, 0 based in VS Code
         }
         line = parseInt(lineTmp) - 1;  // 1 based in rg, 0 based in VS Code
     }
+
+    const textDocumentOptions = {
+      preview: false,
+      selection: line?new vscode.Range(line, char, line, char):undefined
+    };
+
     vscode.window.showTextDocument(
         vscode.Uri.file( join(vscode.workspace.workspaceFolders[0].uri.fsPath, file) ),
-        { preview: false, selection: new vscode.Range(line, char, line, char) });
+        textDocumentOptions);
   });
 }
 
