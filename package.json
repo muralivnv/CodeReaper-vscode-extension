@@ -2,7 +2,7 @@
 	"name": "codereaper",
 	"displayName": "Code Reaper",
 	"description": "",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"publisher": "muralivnv",
 	"repository": { 
 		"url": "https://github.com/muralivnv/CodeReaper-vscode-extension" 
