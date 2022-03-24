@@ -62,6 +62,7 @@ function modeToggle()
   { switchToEditMode(); }
   else 
   { switchToNavigationMode(); }
+  resetInputKeyTreeState();
 }
 
 function clearInput()
