@@ -1,16 +1,16 @@
 let vscode = require('vscode');
 let path   = require('path');
-const Fuse = require('fuse.js');
 const {existsSync} = require('fs');
-
+const fuzzysort = require('fuzzysort');
 let { MRUTabs } = require('./types');
 
 // constants
 let maxMRUTabs = 10; // default, will be updated later based on user-configuration
-let hintCharList = "werdfcv"; // default, will be updated later based on user-configuration
+let hintCharList = "asdjklyweio"; // default, will be updated later based on user-configuration
 
 // configuration
 const jumpToTabId = 'codereaper.jumpToTab';
+const quickJumpToTabId = 'codereaper.quickJumpToTab';
 
 // global variables
 let mruTabsList = new MRUTabs(maxMRUTabs);
@@ -20,6 +20,7 @@ function register(context)
 {
   context.subscriptions.push(
     vscode.commands.registerCommand(jumpToTabId, jumpToTab),
+    vscode.commands.registerCommand(quickJumpToTabId, quickJumpToTab),
     vscode.workspace.onDidChangeConfiguration(updateConfig)
   );
 
@@ -59,32 +60,32 @@ function jumpToTab()
 {
   // get list of known text docs
   let knownDocs = mruTabsList.getMRUTabs();
-  let docHints = generateFixedLenHints(knownDocs.length, Math.ceil(knownDocs.length/10.0));
+  const hintLen = Math.ceil(knownDocs.length/hintCharList.length);
+  let docHints = generateFixedLenHints(knownDocs.length, hintLen);
 
   // combine hints and docs together
   let searcheable = Object.keys(knownDocs).map(label => ({label: `${docHints[label]} ~ ${path.basename(knownDocs[label])}`, 
                                                           description: `${vscode.workspace.asRelativePath(path.dirname(knownDocs[label]))}`, 
                                                           alwaysShow: true}));
   // set up fuzzy search
-  const options = { includeScore: false, keys: ['label', 'description'] };
-  // @ts-ignore
-  const fuse = new Fuse(searcheable, options);
+  const fuzzyOptions = { keys: ['label', 'description'], allowTypo: true };
 
   // set up quick-pick
   let quickPick = vscode.window.createQuickPick();
 
-  quickPick.matchOnDescription = true;
+  quickPick.matchOnDescription = false;
+  quickPick.matchOnDetail = false;
   quickPick.items = searcheable;
   quickPick.onDidChangeValue(e => {
     let items = searcheable;
     if (e != '')
     {
-      const results = fuse.search(e);
+      const results = fuzzysort.go(e, searcheable, fuzzyOptions);
       items = [];
       for (let i in results)
-      { items.push(results[i].item); }
+      { items.push(results[i].obj); }
     }
-    quickPick.items = items; 
+    quickPick.items = items;
   });
 
   quickPick.onDidAccept(()=>{
@@ -96,10 +97,77 @@ function jumpToTab()
       // in case the file is not from workspace folder don't prematurely append workspace folder
       if (!existsSync(fullPath))
       { fullPath = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, fullPath); }
-      
+
       vscode.window.showTextDocument(
         vscode.Uri.file( fullPath ),
-        { preview: false});      
+        { preview: false});
+    })
+  });
+  
+  quickPick.onDidHide(() => quickPick.dispose());
+  quickPick.show();
+}
+
+function quickJumpToTab()
+{
+  // get list of known text docs
+  let knownDocs = mruTabsList.getMRUTabs();
+  const hintLen = Math.ceil(knownDocs.length/hintCharList.length);
+  let docHints = generateFixedLenHints(knownDocs.length, hintLen);
+
+  // combine hints and docs together
+  let searcheable = Object.keys(knownDocs).map(label => ({label: `${docHints[label]} ~ ${path.basename(knownDocs[label])}`, 
+                                                          description: `${vscode.workspace.asRelativePath(path.dirname(knownDocs[label]))}`, 
+                                                          alwaysShow: true}));
+  // set up quick-pick
+  let quickPick = vscode.window.createQuickPick();
+
+  quickPick.matchOnDescription = false;
+  quickPick.matchOnDetail = false;
+  quickPick.canSelectMany = false;
+
+  quickPick.items = searcheable;
+
+  // pre-select first item in the list
+  quickPick.items[0].picked = true;
+
+  quickPick.onDidChangeValue(e => {
+    if (e != '')
+    {
+      if (e.length == hintLen)
+      {
+        const firstItem = quickPick.activeItems[0];
+
+        const dirname = firstItem.description;
+        const filename = (firstItem.label.split('~')[1]).trimStart();
+        let fullPath = path.join(dirname, filename)
+
+        // in case the file is not from workspace folder don't prematurely append workspace folder
+        if (!existsSync(fullPath))
+        { fullPath = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, fullPath); }
+
+        vscode.window.showTextDocument(
+          vscode.Uri.file( fullPath ),
+          { preview: false});
+        
+        quickPick.dispose();
+      }
+    }
+  });
+
+  quickPick.onDidAccept(()=>{
+    quickPick.selectedItems.forEach(e => {
+      const dirname = e.description;
+      const filename = (e.label.split('~')[1]).trimStart();
+      let fullPath = path.join(dirname, filename)
+
+      // in case the file is not from workspace folder don't prematurely append workspace folder
+      if (!existsSync(fullPath))
+      { fullPath = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, fullPath); }
+
+      vscode.window.showTextDocument(
+        vscode.Uri.file( fullPath ),
+        { preview: false});
     })
   });
   
