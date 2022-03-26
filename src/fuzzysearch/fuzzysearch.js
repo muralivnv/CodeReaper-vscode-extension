@@ -1,5 +1,5 @@
 let vscode = require('vscode');
-let { tmpdir, platform } = require('os');
+let { tmpdir, platform, EOL } = require('os');
 let {join} = require('path');
 let {writeFileSync, watch, rmSync, readFile} = require('fs');
 
@@ -60,8 +60,9 @@ function fuzzySearchFiles()
 
   const fzf_cmd = getFZFCmdFiles();
   const rg_cmd = getRgCmdFiles();
+  const errorLevel_cmd = getShellErrorCodeCmd();
 
-  term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile}`);
+  term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile} & echo ${errorLevel_cmd} >> ${searchResultOutFile}`);
   term.show();
 }
 
@@ -75,8 +76,9 @@ function fuzzySearchFileContents()
 
   const fzf_cmd = getFZFCmdContents();
   const rg_cmd = getRgCmdContents();
+  const errorLevel_cmd = getShellErrorCodeCmd();
 
-  term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile}`);
+  term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile} & echo ${errorLevel_cmd} >> ${searchResultOutFile}`);
   term.show();
 }
 
@@ -94,12 +96,20 @@ function createTerminal()
 function getShell()
 {
   const curPlatform = platform();
-  if (platform() == 'win32')
+  if (curPlatform == 'win32')
   { return "cmd.exe"; }
   else if (curPlatform == 'linux')
   { return "bash"; }
   else 
   { return undefined; }
+}
+
+function getShellErrorCodeCmd()
+{
+  const curPlatform = platform();
+  if (curPlatform == 'win32')
+  { return "%ErrorLevel%"; }
+  return "$?";
 }
 
 function getFZFCmdContents()
@@ -119,15 +129,37 @@ function handleSelection()
   readFile(searchResultOutFile, {encoding: 'utf-8'}, (err, data) => {
     if (err)
     { return; }
-    
-    const isDataGood = (data.length > 0) && (data[0] != '1');
-    if (isDataGood)
+
+    let lines = data.split(EOL).filter(s => s !== '');
+    var i = lines.length - 1;
+
+    // try to parse error code if any
+    try
     {
-      try
-      {  openFiles(data);  }
-      catch (error)
-      {  console.error(error);  }
-      term?.hide();
+      const exitCode = parseInt(lines[i]);
+      if  ( (isNaN(exitCode) == false) && (exitCode != 0) )
+      {
+        i -= 1;
+        term?.hide();
+      }
+    }
+    catch (error)
+    { console.log(error); }
+
+    // parse rest of the file
+    for (; i >= 0; i--)
+    {
+      const isDataGood = (lines[i].length > 0) && (lines[i][0] != '1');
+      if (isDataGood)
+      {
+        try
+        {
+          openFiles(lines[i]);
+          term?.hide();
+        }
+        catch (error)
+        {  console.error(error);  }
+      }
     }
   });
 }
