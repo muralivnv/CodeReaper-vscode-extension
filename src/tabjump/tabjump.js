@@ -1,7 +1,6 @@
 let vscode = require('vscode');
 let path   = require('path');
 const {existsSync} = require('fs');
-const fuzzysort = require('fuzzysort');
 let { MRUTabs } = require('./types');
 
 // constants
@@ -67,26 +66,15 @@ function jumpToTab()
   let searcheable = Object.keys(knownDocs).map(label => ({label: `${docHints[label]} ~ ${path.basename(knownDocs[label])}`, 
                                                           description: `${vscode.workspace.asRelativePath(path.dirname(knownDocs[label]))}`, 
                                                           alwaysShow: true}));
-  // set up fuzzy search
-  const fuzzyOptions = { keys: ['label', 'description'], allowTypo: true };
-
   // set up quick-pick
   let quickPick = vscode.window.createQuickPick();
 
-  quickPick.matchOnDescription = false;
-  quickPick.matchOnDetail = false;
+  quickPick.matchOnDescription = true;
+  quickPick.matchOnDetail = true;
   quickPick.items = searcheable;
-  quickPick.onDidChangeValue(e => {
-    let items = searcheable;
-    if (e != '')
-    {
-      const results = fuzzysort.go(e, searcheable, fuzzyOptions);
-      items = [];
-      for (let i in results)
-      { items.push(results[i].obj); }
-    }
-    quickPick.items = items;
-  });
+
+  // pre-select first item in the list
+  quickPick.items[0].picked = true;
 
   quickPick.onDidAccept(()=>{
     quickPick.selectedItems.forEach(e => {
