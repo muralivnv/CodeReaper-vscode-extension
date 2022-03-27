@@ -9,18 +9,21 @@ let fzfPath = "fzf";
 let fuzzySearchIncludeGlob = undefined;
 let fuzzySearchExcludeGlob = undefined;
 let fuzzySearchContentRegExp = undefined;
+let fuzzySearchTodoContentRegExp = undefined;
 let fzfOptions = undefined;
 
 const milliseconds = (new Date()).getTime();
 const searchResultOutFile = join(tmpdir(), `vscode_fuzzysearch_${milliseconds.toString()}.tmp`);
 const fuzzySearchFileId = "codereaper.fuzzySearchFiles";
 const fuzzySearchFileContentId = "codereaper.fuzzySearchFileContents";
+const fuzzySearchTodoContentsId = "codereaper.fuzzySearchTodoContents"
 
 function register(context)
 {
   context.subscriptions.push(
     vscode.commands.registerCommand(fuzzySearchFileId, fuzzySearchFiles),
     vscode.commands.registerCommand(fuzzySearchFileContentId, fuzzySearchFileContents),
+    vscode.commands.registerCommand(fuzzySearchTodoContentsId, fuzzySearchTodoContents),
     vscode.workspace.onDidChangeConfiguration(updateConfig)
   );
 
@@ -47,6 +50,7 @@ function updateConfig()
   fuzzySearchIncludeGlob = codereaper.get("fuzzySearchIncludeGlob");
   fuzzySearchExcludeGlob = codereaper.get("fuzzySearchExcludeGlob");
   fuzzySearchContentRegExp = codereaper.get("fuzzySearchContentRegExp");
+  fuzzySearchTodoContentRegExp = codereaper.get("fuzzySearchTodoContentRegExp");
   fzfOptions = codereaper.get("fzfOptions");
 }
 
@@ -76,6 +80,21 @@ function fuzzySearchFileContents()
 
   const fzf_cmd = getFZFCmdContents();
   const rg_cmd = getRgCmdContents();
+  const errorLevel_cmd = getShellErrorCodeCmd();
+
+  term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile} & echo ${errorLevel_cmd} >> ${searchResultOutFile}`);
+  term.show();
+}
+
+function fuzzySearchTodoContents()
+{
+  if (   (!term                        )
+      || (term.exitStatus !== undefined))
+  {
+    createTerminal();
+  }
+  const fzf_cmd = getFZFCmdFiles();
+  const rg_cmd  = getRgCmdTodoContents();
   const errorLevel_cmd = getShellErrorCodeCmd();
 
   term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile} & echo ${errorLevel_cmd} >> ${searchResultOutFile}`);
@@ -123,6 +142,9 @@ function getRgCmdFiles()
 
 function getRgCmdContents()
 { return `${rgPath} --line-number --column --iglob ${fuzzySearchIncludeGlob} --iglob ${fuzzySearchExcludeGlob} --pcre2 ${fuzzySearchContentRegExp}`; }
+
+function getRgCmdTodoContents()
+{ return `${rgPath} --line-number --column --iglob ${fuzzySearchIncludeGlob} --iglob ${fuzzySearchExcludeGlob} --pcre2 ${fuzzySearchTodoContentRegExp}`; }
 
 function handleSelection()
 {

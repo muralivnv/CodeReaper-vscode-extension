@@ -43,6 +43,10 @@
 			{
 				"command": "codereaper.fuzzySearchFileContents",
 				"title": "[CodeReaper] Fuzzy search for content and jump to them"
+			},
+			{
+				"command": "codereaper.fuzzySearchTodoContents",
+				"title": "[Codereaper] Fuzzy Search for Todo content and jump to them"
 			}
 		],
 		"keybindings": [
@@ -313,12 +317,16 @@
 							"command": "workbench.action.closeActiveEditor",
 							"args": {}
 						},
-						"?": {
+						"'": {
 							"command": "codereaper.fuzzySearchFiles",
 							"args": {}
 						},
 						"/": {
 							"command": "codereaper.fuzzySearchFileContents",
+							"args": {}
+						},
+						"?": {
+							"command": "codereaper.fuzzySearchTodoContents",
 							"args": {}
 						},
 						"\\": {
@@ -384,6 +392,11 @@
 					"type": "string",
 					"description": "Regular Expression to use which fuzzy search file contents",
 					"default": "\"^\\s*\\w+(\\w+(?!^\\s*(//|/\\*|#|<!--|;|-)))\""
+				},
+				"codereaper.fuzzySearchTodoContentRegExp": {
+					"type": "string",
+					"description": "Regular Expression to use to fuzzy search todo contents",
+					"default": "\"((//|/\\*|#|<!--|;|-)\\s*(TODO|FIXME|XXX|HACK))\""
 				},
 				"codereaper.fzfOptions": {
 					"type": "string",
