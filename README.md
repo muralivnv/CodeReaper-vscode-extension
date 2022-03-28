@@ -49,7 +49,7 @@ Set of features to easily and efficiently navigate around workspace.
 
 ### Fuzzy Searching
 
-[ripgrep](https://github.com/BurntSushi/ripgrep) and [fzf](https://github.com/junegunn/fzf) are the backbone for this feature. 
+[ripgrep](https://github.com/BurntSushi/ripgrep) and [fzf](https://github.com/junegunn/fzf) are backbone of this feature. 
 
 | Command | Explanation |
 |---|---|
