@@ -18,64 +18,63 @@ Set of features to easily and efficiently navigate around workspace.
 
 ## Configuration
 
-Follow the sections below to configure required feature.
-
 ### Navigation Mode Configuration
 
 | Command | Explanation |
 |---|---|
-| `codereaper.toggle` | Toggle between NORMAL (as in vscode normal) mode and NAVIGATION mode. By default is mapped to a keyboard shortcut `alt+q` |
-| `codereaper.clearInput` | Clear currently type keys in NAVIGATION mode. By default is mapped to keyboard shortcut `esc` |
+| `codereaper.toggle` | Command to go in and out of NAVIGATION mode. By default this is mapped to a keybinding `alt+q` |
+| `codereaper.clearInput` | Command to clear currently typed key sequence in NAVIGATION mode. By default this is mapped to a keybinding `esc` |
 
 #### Configuring
 
-- **`codereaper.keymap`**: Defines mapping between keysequences to commands in NAVIGATION mode. By default this is set to [this](https://github.com/muralivnv/CodeReaper-vscode-extension/blob/2f0cf9b901c385354ed53477c6ecfc416ef85272/package.json#L71). Modify this in your `settings.json` to your liking.  
+- **`codereaper.keymap`**: Defines mapping between key sequences to commands in NAVIGATION mode. By default this is set to [this](https://github.com/muralivnv/CodeReaper-vscode-extension/blob/2f0cf9b901c385354ed53477c6ecfc416ef85272/package.json#L71). Can be modified through `settings.json`.  
 
-- **`codereaper.stickyParentKeys`**: For example, let's say keysequence `ci` is mapped to command `cursorInsertBelow`. It would be inconvenient to press `ci` n-times. Instead by adding `c` to `stickyParentKeys` array, we type `c` 1-time and `i` n-times. To go out of sticky mode, simply press `esc` or any keysequence that is not under this is not under current sticky parent. By default this array contains `m`, `c`, `e`. Modify this in your `settings.json` to your liking.  
+- **`codereaper.stickyParentKeys`**: For example, let's say a key sequence `ci` is mapped to command `cursorInsertBelow`. It would be inconvenient to press `ci` n-times. Instead, by adding `c` to `stickyParentKeys` list, we can press `c` just 1-time and then press `i` n-times or any other key under this parent. To go out of this sticky key mode, simply press `esc` or any key sequence that is not under this current sticky parent. By default this array contains `m`, `c`, `e`. Can be modified through `settings.json`.  
 
-- **`codereaper.navigationModeIdentifier`**: Text to display at the bottom left corner of vscode when in NAVIGATION mode. Set to 🐒 by default and can be changed in `settings.json`.
+- **`codereaper.navigationModeIdentifier`**: Text to display at the bottom left corner of VSCode when in NAVIGATION mode. This is set to 🐒 by default and can be changed in `settings.json`.
 
-- **`codereaper.editModeIdentifier`**: Text to display at the bottom left corner of vscode when in NORMAL mode. Set to 🐑 by default and can be changed in `settings.json`. 
+- **`codereaper.editModeIdentifier`**: Text to display at the bottom left corner of vscode when in NORMAL mode. This is set to 🐑 by default and can be changed in `settings.json`. 
 
 ### Jumping Between Tabs
 
 | Command | Explanation |
 |---|---|
-| `codereaper.jumpToTab` | List n most recently used in the order of earliest to oldest with hints to jump. Need to hit ENTER to open that tab |
-| `codereaper.quickJumpToTab` | List n most recently used in the order of earliest to oldest with hints to jump. Simply pressing the hint shown will automatically switch to that tab |
+| `codereaper.jumpToTab` | List n most recently used tabs in the order of latest to oldest with hints to **select and jump**. Need to hit ENTER to open the tab |
+| `codereaper.quickJumpToTab` | List n most recently used tabs in the order of latest to oldest with hints to **immediately jump**. Simply pressing the hint that is shown next to tab name will automatically switch to that tab without user pressing ENTER |
 
 #### Configuring
 
-- **`codereaper.maxMRUTabsLen`**: N most recently used tabs to keep in list. Set to 20 by default and can be changed this in `settings.json`. 
-- **`codereaper.tabHintCharList`**: Hints to be used to show next to tab names for quick jumping. Set to `asdjklyweio` by default and can be changed in `settings.json`.
+- **`codereaper.maxMRUTabsLen`**: N most recently used tabs to keep track of. This is set to 20 by default and can be modified through `settings.json`. 
+- **`codereaper.tabHintCharList`**: Hints to be used to show next to the tab names for easy tab selection. This is set to `asdjklyweio` by default and can be modified through `settings.json`.
 
 ### Fuzzy Searching
 
-This feature uses Ripgrep and FZF extensively. 
+[ripgrep](https://github.com/BurntSushi/ripgrep) and [fzf](https://github.com/junegunn/fzf) are the backbone for this feature. 
 
 | Command | Explanation |
 |---|---|
-| `codereaper.fuzzySearchFiles` | Command to trigger fuzzy searching for files. After hitting selecting the file in FZF, the extension will automatically open this file in the editor. |
-| `codereaper.fuzzySearchFileContents` | Command to trigger fuzzy searching for a content inside all the files. After selecting a required line in FZF, the extension will automatically open the file at the location in the editor. Type of lines that will be shown can be configured using the setting `codereaper.fuzzySearchContentRegExp` |
-| `codereaper.fuzzySearchTodoContents` | Same as above but tuned towards lines that includes TODO or FIXME or XXX or HACK. Type of lines that will be shown can be configured using the setting `codereaper.fuzzySearchTodoContentRegExp`|
-
-For all the three above commands, the type of files and folders that will be used can be configured using the setting `codereaper.fuzzySearchIncludeGlob`. Similarly, some paths and files can be ignored to speed up the search. This is can configured using the setting `codereaper.fuzzySearchExcludeGlob`. 
+| `codereaper.fuzzySearchFiles` | Command to trigger fuzzy searching for files in terminal. After selecting the file in fzf, the extension will automatically open the selected file in the editor |
+| `codereaper.fuzzySearchFileContents` | Command to trigger fuzzy searching for contents inside the files. After selecting the line in fzf, the extension will automatically open the file at the current line in the editor. Type of lines that will be shown can be configured using the setting `codereaper.fuzzySearchContentRegExp` |
+| `codereaper.fuzzySearchTodoContents` | Same as above but tuned to show comment lines that includes TODO or FIXME or XXX or HACK. Type of lines that will be shown can be configured using the setting `codereaper.fuzzySearchTodoContentRegExp` |
+  
+For all the three above commands, the type of files and folders that will be used can be configured using the setting `codereaper.fuzzySearchIncludeGlob`.   
+Similarly, some paths and files can be ignored to speed up the search. This is can configured using the setting `codereaper.fuzzySearchExcludeGlob`. 
 
 #### Configuring
 
-- **`codereaper.ripgrepPath`**: Path to ripgrep executable. Set to `rg` by default.
+- **`codereaper.ripgrepPath`**: Path to ripgrep executable. This is set to `rg` by default and can be modified through `settings.json`.
 
-- **`codereaper.fzfPath`**: Path to fzf executable. Set to `fzf` by default.
+- **`codereaper.fzfPath`**: Path to fzf executable. This is set to `fzf` by default and can be modified through `settings.json`.
 
-- **`codereaper.fuzzySearchIncludeGlob`**: Type of files and folders to be used in fuzzy search mode for all the three commands above. Set to `**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}` by default to only search files with this extensions. **Note**: The syntax of this should be recognizable by ripgrep.
+- **`codereaper.fuzzySearchIncludeGlob`**: Type of files and folders to be used by ripgrep for all the three commands above. This is set to `**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}` by default to only search files with these extensions and can be modified through `settings.json`. **Note**: The reg-exp syntax of this setting should be understandable by ripgrep.
 
-- **`codereaper.fuzzySearchExcludeGlob`**: Type of files and folders to be ignored in fuzzy search mode for all the three commands above. Set to `!**/{node_modules}/**` by default. **Note**: The syntax of this should be recognizable by ripgrep
+- **`codereaper.fuzzySearchExcludeGlob`**: Type of files and folders to be ignored by ripgrep for all the three commands above. This is set to `!**/{node_modules}/**` by default and can be modified through `settings.json`. **Note**: The reg-exp syntax of this setting should be understandable by ripgrep.
 
-- **`codereaper.fuzzySearchContentRegExp`**: Type of content to be extracted by ripgrep from all the files for fuzzy searching of contents. Set to `\"^\\s*\\w+(\\w+(?!^\\s*(//|/\\*|#|<!--|;|-)))\"` by default to exclude lines that are comments. 
+- **`codereaper.fuzzySearchContentRegExp`**: Type of content to be extracted by ripgrep from all the files for fuzzy searching of contents. This is set to `\"^\\s*\\w+(\\w+(?!^\\s*(//|/\\*|#|<!--|;|-)))\"` by default to exclude lines that are comments. This can be modified through `settings.json`. 
 
-- **`codereaper.fuzzySearchTodoContentRegExp`**: Type of content to be extracted by ripgrep from all the file for fuzzy searching of TODOs. Set to `\"((//|/\\*|#|<!--|;|-)\\s*(TODO|FIXME|XXX|HACK))\"` by default to only include comment lines and has one of TODO, FIXME, XXX, HACK. 
+- **`codereaper.fuzzySearchTodoContentRegExp`**: Type of content to be extracted by ripgrep from all the file for fuzzy searching of TODOs. This is set to `\"((//|/\\*|#|<!--|;|-)\\s*(TODO|FIXME|XXX|HACK))\"` by default to only include comment lines that has one of TODO, FIXME, XXX, HACK. This can be modified through `settings.json`. 
 
-- **`codereaper.fzfOptions`**: Options to pass to FZF to prettify output or configuring FZF search. Set to `--algo=v2 --color hl:221,hl+:74 --margin 1% --border` by default.
+- **`codereaper.fzfOptions`**: Options to pass to fzf to configure fuzzy search. This is set to `--algo=v2 --color hl:221,hl+:74 --margin 1% --border` by default and can be modified through `settings.json`.
 
 ## References
 
