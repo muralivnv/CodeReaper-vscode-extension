@@ -11,9 +11,9 @@ Set of features to easily and efficiently navigate around workspace.
 
 ## Installation
 
-To install, simply download the file **codereaper-x.x.x.vsix** and install by,
+- Download the file **codereaper-x.x.x.vsix**
 - Open VSCode
-- Open Command Palette by using keyboard shortcut `ctrl/cmd+shift+p` and type **install from vsix**
+- Open Command Palette with keyboard shortcut `ctrl/cmd+shift+p` and type **install from vsix**
 - Navigate to the download location and install the extension
 
 ## Configuration
