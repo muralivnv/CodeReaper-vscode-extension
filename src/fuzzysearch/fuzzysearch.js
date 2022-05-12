@@ -66,7 +66,11 @@ function fuzzySearchFiles()
   const rg_cmd = getRgCmdFiles();
   const errorLevel_cmd = getShellErrorCodeCmd();
 
-  term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile} & echo ${errorLevel_cmd} >> ${searchResultOutFile}`);
+  const cmd1 = `${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile}`;
+  const cmd2 = `echo ${errorLevel_cmd} >> ${searchResultOutFile}`;
+  const finalCmd = concatMultiCommands([cmd1, cmd2]);
+
+  term.sendText(finalCmd);
   term.show();
 }
 
@@ -82,7 +86,11 @@ function fuzzySearchFileContents()
   const rg_cmd = getRgCmdContents();
   const errorLevel_cmd = getShellErrorCodeCmd();
 
-  term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile} & echo ${errorLevel_cmd} >> ${searchResultOutFile}`);
+  const cmd1 = `${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile}`;
+  const cmd2 = `echo ${errorLevel_cmd} >> ${searchResultOutFile}`;
+  const finalCmd = concatMultiCommands([cmd1, cmd2]);
+
+  term.sendText(finalCmd);
   term.show();
 }
 
@@ -97,7 +105,11 @@ function fuzzySearchTodoContents()
   const rg_cmd  = getRgCmdTodoContents();
   const errorLevel_cmd = getShellErrorCodeCmd();
 
-  term.sendText(`${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile} & echo ${errorLevel_cmd} >> ${searchResultOutFile}`);
+  const cmd1 = `${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile}`;
+  const cmd2 = `echo ${errorLevel_cmd} >> ${searchResultOutFile}`;
+  const finalCmd = concatMultiCommands([cmd1, cmd2]);
+  
+  term.sendText(finalCmd);
   term.show();
 }
 
@@ -129,6 +141,14 @@ function getShellErrorCodeCmd()
   if (curPlatform == 'win32')
   { return "%ErrorLevel%"; }
   return "$?";
+}
+
+function concatMultiCommands(commands)
+{
+  const curPlatform = platform();
+  if (curPlatform == 'win32')
+  { return commands.join('&'); }
+  return commands.join(';');
 }
 
 function getFZFCmdContents()

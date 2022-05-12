@@ -50,7 +50,12 @@ Set of features to easily and efficiently navigate around workspace.
 ### Fuzzy Searching
 
 [ripgrep](https://github.com/BurntSushi/ripgrep) and [fzf](https://github.com/junegunn/fzf) are backbone of this feature. 
-
+  
+**Note**: If using this extension on linux, by default the extension uses bash shell for this feature. So, set the following option in your `.bashrc`
+```bash
+set +H
+```
+  
 | Command | Explanation |
 |---|---|
 | `codereaper.fuzzySearchFiles` | Command to trigger fuzzy searching for files in terminal. After selecting the file in fzf, the extension will automatically open the selected file in the editor |
@@ -66,15 +71,15 @@ Similarly, some paths and files can be ignored to speed up the search. This is c
 
 - **`codereaper.fzfPath`**: Path to fzf executable. This is set to `fzf` by default and can be modified through `settings.json`.
 
-- **`codereaper.fuzzySearchIncludeGlob`**: Type of files and folders to be used by ripgrep for all the three commands above. This is set to `**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}` by default to only search files with these extensions and can be modified through `settings.json`. **Note**: The reg-exp syntax of this setting should be understandable by ripgrep.
+- **`codereaper.fuzzySearchIncludeGlob`**: Type of files and folders to be used by ripgrep for all the three commands above. This is set to `\"**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}\"` by default to only search files with these extensions and can be modified through `settings.json`. **Note**: The reg-exp syntax of this setting should be understandable by ripgrep.
 
-- **`codereaper.fuzzySearchExcludeGlob`**: Type of files and folders to be ignored by ripgrep for all the three commands above. This is set to `!**/{node_modules}/**` by default and can be modified through `settings.json`. **Note**: The reg-exp syntax of this setting should be understandable by ripgrep.
+- **`codereaper.fuzzySearchExcludeGlob`**: Type of files and folders to be ignored by ripgrep for all the three commands above. This is set to `\"!**/{node_modules}/**\"` by default and can be modified through `settings.json`. **Note**: The reg-exp syntax of this setting should be understandable by ripgrep.
 
 - **`codereaper.fuzzySearchContentRegExp`**: Type of content to be extracted by ripgrep from all the files for fuzzy searching of contents. This is set to `\"^\\s*\\w+(\\w+(?!^\\s*(//|/\\*|#|<!--|;|-)))\"` by default to exclude lines that are comments. This can be modified through `settings.json`. 
 
 - **`codereaper.fuzzySearchTodoContentRegExp`**: Type of content to be extracted by ripgrep from all the file for fuzzy searching of TODOs. This is set to `\"((//|/\\*|#|<!--|;|-)\\s*(TODO|FIXME|XXX|HACK))\"` by default to only include comment lines that has one of TODO, FIXME, XXX, HACK. This can be modified through `settings.json`. 
 
-- **`codereaper.fzfOptions`**: Options to pass to fzf to configure fuzzy search. This is set to `--algo=v2 --color hl:221,hl+:74 --margin 1% --border` by default and can be modified through `settings.json`.
+- **`codereaper.fzfOptions`**: Options to pass to fzf to configure fuzzy search. This is set to `--algo=v2 --color hl:221,hl+:74 --margin 1% --border -i ` by default and can be modified through `settings.json`.
 
 ## References
 
