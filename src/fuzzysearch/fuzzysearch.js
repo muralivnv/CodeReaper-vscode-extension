@@ -1,13 +1,15 @@
 let vscode = require('vscode');
 let { tmpdir, platform, EOL } = require('os');
-let {join} = require('path');
+let {join, sep} = require('path');
 let {writeFileSync, watch, rmSync, readFile} = require('fs');
 
 let term = undefined;
+let termCWD = "";
+let workspaceRootFolder = "";
 let rgPath = "rg";
 let fzfPath = "fzf";
-let fuzzySearchIncludeGlob = undefined;
-let fuzzySearchExcludeGlob = undefined;
+let fuzzySearchIncludeArgs = undefined;
+let fuzzySearchExcludeArgs = undefined;
 let fuzzySearchContentRegExp = undefined;
 let fuzzySearchTodoContentRegExp = undefined;
 let fzfOptions = undefined;
@@ -24,7 +26,8 @@ function register(context)
     vscode.commands.registerCommand(fuzzySearchFileId, fuzzySearchFiles),
     vscode.commands.registerCommand(fuzzySearchFileContentId, fuzzySearchFileContents),
     vscode.commands.registerCommand(fuzzySearchTodoContentsId, fuzzySearchTodoContents),
-    vscode.workspace.onDidChangeConfiguration(updateConfig)
+    vscode.workspace.onDidChangeConfiguration(updateConfig),
+    vscode.workspace.onDidChangeWorkspaceFolders(handleWorkspaceFoldersChange)
   );
 
   writeFileSync(searchResultOutFile, '');
@@ -47,20 +50,39 @@ function updateConfig()
 
   rgPath = codereaper.get("ripgrepPath");
   fzfPath = codereaper.get("fzfPath");
-  fuzzySearchIncludeGlob = codereaper.get("fuzzySearchIncludeGlob");
-  fuzzySearchExcludeGlob = codereaper.get("fuzzySearchExcludeGlob");
+  fuzzySearchIncludeArgs = `--iglob ${codereaper.get("fuzzySearchIncludeGlob")}`;
+  fuzzySearchExcludeArgs = `--iglob ${codereaper.get("fuzzySearchExcludeGlob")}`;
   fuzzySearchContentRegExp = codereaper.get("fuzzySearchContentRegExp");
   fuzzySearchTodoContentRegExp = codereaper.get("fuzzySearchTodoContentRegExp");
   fzfOptions = codereaper.get("fzfOptions");
+
+  handleWorkspaceFoldersChange();
 }
 
-function fuzzySearchFiles()
+function handleWorkspaceFoldersChange()
+{
+  workspaceRootFolder = getCommonWorkspaceFoldersRoot();
+  fuzzySearchIncludeArgs = assembleFuzzySearchIncludeArgs();
+}
+
+function setupTerminal()
 {
   if (   (!term                        )
       || (term.exitStatus !== undefined))
   {
     createTerminal();
   }
+  else if (termCWD != workspaceRootFolder)
+  {
+    term.sendText(`cd ${workspaceRootFolder}`);
+    term.show();
+    termCWD = workspaceRootFolder;
+  }
+}
+
+function fuzzySearchFiles()
+{
+  setupTerminal();
 
   const fzf_cmd = getFZFCmdFiles();
   const rg_cmd = getRgCmdFiles();
@@ -68,7 +90,7 @@ function fuzzySearchFiles()
 
   const cmd1 = `${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile}`;
   const cmd2 = `echo ${errorLevel_cmd} >> ${searchResultOutFile}`;
-  const finalCmd = concatMultiCommands([cmd1, cmd2]);
+  const finalCmd = concatMultipleShellCommands([cmd1, cmd2]);
 
   term.sendText(finalCmd);
   term.show();
@@ -76,11 +98,7 @@ function fuzzySearchFiles()
 
 function fuzzySearchFileContents()
 {
-  if (   (!term                        )
-      || (term.exitStatus !== undefined))
-  {
-    createTerminal();
-  }
+  setupTerminal();
 
   const fzf_cmd = getFZFCmdContents();
   const rg_cmd = getRgCmdContents();
@@ -88,7 +106,7 @@ function fuzzySearchFileContents()
 
   const cmd1 = `${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile}`;
   const cmd2 = `echo ${errorLevel_cmd} >> ${searchResultOutFile}`;
-  const finalCmd = concatMultiCommands([cmd1, cmd2]);
+  const finalCmd = concatMultipleShellCommands([cmd1, cmd2]);
 
   term.sendText(finalCmd);
   term.show();
@@ -96,31 +114,90 @@ function fuzzySearchFileContents()
 
 function fuzzySearchTodoContents()
 {
-  if (   (!term                        )
-      || (term.exitStatus !== undefined))
-  {
-    createTerminal();
-  }
+  setupTerminal();
+
   const fzf_cmd = getFZFCmdFiles();
   const rg_cmd  = getRgCmdTodoContents();
   const errorLevel_cmd = getShellErrorCodeCmd();
 
   const cmd1 = `${rg_cmd} | ${fzf_cmd} > ${searchResultOutFile}`;
   const cmd2 = `echo ${errorLevel_cmd} >> ${searchResultOutFile}`;
-  const finalCmd = concatMultiCommands([cmd1, cmd2]);
+  const finalCmd = concatMultipleShellCommands([cmd1, cmd2]);
   
   term.sendText(finalCmd);
   term.show();
 }
 
 // helper functions
+function getRootPath(folders)
+{
+  if (folders.length == 0)
+  { return ''; }
+
+  if (folders.length == 1)
+  { return folders[0]; }
+ 
+  var rootPath = new Set(folders[0].split(sep));
+
+  for (var i = 1; i < folders.length; i++)
+  {
+    const thisPath = new Set(folders[i].split(sep));
+    rootPath = new Set([...rootPath].filter(elem => thisPath.has(elem)));
+  }
+  return [...rootPath].join(sep);
+}
+
+function getCommonWorkspaceFoldersRoot()
+{
+  const wrkspcFolders = vscode.workspace.workspaceFolders.map(function (folder) {
+    return folder.uri.fsPath;
+  });
+  const rootPath = getRootPath(wrkspcFolders);
+  return rootPath;
+}
+
+function assembleFuzzySearchIncludeArgs()
+{
+  const wrkspcFolders = vscode.workspace.workspaceFolders.map(function (folder) {
+    return folder.uri.fsPath;
+  });
+  const rootPath = getRootPath(wrkspcFolders);
+  workspaceRootFolder = rootPath;
+
+  const relFolderPaths = wrkspcFolders.map(function (folder){
+    var temp = folder.replace(rootPath, "");
+    if (temp.charAt(0) == sep)
+    {
+      return temp.substring(1);
+    }
+    return temp;
+  }).filter(function (relFolder) {
+    return (relFolder.length > 0);
+  });
+  var rgArgsMultipleFolders = fuzzySearchIncludeArgs;
+  if (relFolderPaths.length > 0)
+  {
+    const fuzzySearchIncludeGlob = vscode.workspace.getConfiguration("codereaper").get("fuzzySearchIncludeGlob");
+    var temp = relFolderPaths.map(function(relFolder) {
+      var temp_ = [fuzzySearchIncludeGlob.slice(0, 1), relFolder + "/", fuzzySearchIncludeGlob.slice(1)].join('');
+      return `--iglob ${temp_}`;
+    });
+    rgArgsMultipleFolders = temp.join(" ");
+  }
+  return rgArgsMultipleFolders;
+}
+
 function createTerminal()
 {
+  const rootPath = getCommonWorkspaceFoldersRoot();
+  termCWD = rootPath;
+  workspaceRootFolder = rootPath;
+
   term = vscode.window.createTerminal({
     name: "FuzzySearch", 
     hideFromUser: true,
     shellPath: getShell(),
-    cwd: vscode.workspace.workspaceFolders[0].uri.fsPath
+    cwd: rootPath
   });
 }
 
@@ -143,7 +220,7 @@ function getShellErrorCodeCmd()
   return "$?";
 }
 
-function concatMultiCommands(commands)
+function concatMultipleShellCommands(commands)
 {
   const curPlatform = platform();
   if (curPlatform == 'win32')
@@ -158,13 +235,19 @@ function getFZFCmdFiles()
 { return `${fzfPath} ${fzfOptions}`; }
 
 function getRgCmdFiles()
-{ return `${rgPath} --iglob ${fuzzySearchIncludeGlob} --iglob ${fuzzySearchExcludeGlob} --files`; }
+{
+  return `${rgPath} ${fuzzySearchIncludeArgs} ${fuzzySearchExcludeArgs} --files`;
+}
 
 function getRgCmdContents()
-{ return `${rgPath} --line-number --column --iglob ${fuzzySearchIncludeGlob} --iglob ${fuzzySearchExcludeGlob} --pcre2 ${fuzzySearchContentRegExp}`; }
+{
+  return `${rgPath} --line-number --column ${fuzzySearchIncludeArgs} ${fuzzySearchExcludeArgs} --pcre2 ${fuzzySearchContentRegExp}`;
+}
 
 function getRgCmdTodoContents()
-{ return `${rgPath} --line-number --column --iglob ${fuzzySearchIncludeGlob} --iglob ${fuzzySearchExcludeGlob} --pcre2 ${fuzzySearchTodoContentRegExp}`; }
+{
+  return `${rgPath} --line-number --column ${fuzzySearchIncludeArgs} ${fuzzySearchExcludeArgs} --pcre2 ${fuzzySearchTodoContentRegExp}`;
+}
 
 function handleSelection()
 {
@@ -226,7 +309,7 @@ function openFiles(data)
     };
 
     vscode.window.showTextDocument(
-        vscode.Uri.file( join(vscode.workspace.workspaceFolders[0].uri.fsPath, file) ),
+        vscode.Uri.file( join(workspaceRootFolder, file) ),
         textDocumentOptions);
   });
 }
