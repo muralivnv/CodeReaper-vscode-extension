@@ -6,6 +6,7 @@ let { MRUTabs } = require('./types');
 // constants
 let maxMRUTabs = 10; // default, will be updated later based on user-configuration
 let hintCharList = "asdjklyweio"; // default, will be updated later based on user-configuration
+let removeClosedTabsFromList = false;
 
 // configuration
 const jumpToTabId = 'codereaper.jumpToTab';
@@ -37,8 +38,8 @@ function register(context)
 
   vscode.workspace.onDidCloseTextDocument(d => {
     const file = d.uri.fsPath;
-    mruTabsList.remove(file);
-    
+    if (removeClosedTabsFromList == true)
+    { mruTabsList.remove(file); }
     if (file == lastTab)
     { lastTab = undefined; }
   });
@@ -53,6 +54,7 @@ function updateConfig()
   maxMRUTabs = codereaper.get("maxMRUTabsLen");
   hintCharList = codereaper.get("tabHintCharList");
   mruTabsList.setMaxSize(maxMRUTabs);
+  removeClosedTabsFromList = codereaper.get("removeClosedTabsFromList");
 }
 
 function jumpToTab()
@@ -63,8 +65,8 @@ function jumpToTab()
   let docHints = generateFixedLenHints(knownDocs.length, hintLen);
 
   // combine hints and docs together
-  let searcheable = Object.keys(knownDocs).map(label => ({label: `${docHints[label]} ~ ${path.basename(knownDocs[label])}`, 
-                                                          description: `${vscode.workspace.asRelativePath(path.dirname(knownDocs[label]))}`, 
+  let searcheable = Object.keys(knownDocs).map(label => ({label: `${docHints[label]} ~ ${path.basename(knownDocs[label])}`,
+                                                          description: `${vscode.workspace.asRelativePath(path.dirname(knownDocs[label]))}`,
                                                           alwaysShow: true}));
   // set up quick-pick
   let quickPick = vscode.window.createQuickPick();
@@ -91,7 +93,7 @@ function jumpToTab()
         { preview: false});
     })
   });
-  
+
   quickPick.onDidHide(() => quickPick.dispose());
   quickPick.show();
 }
@@ -104,8 +106,8 @@ function quickJumpToTab()
   let docHints = generateFixedLenHints(knownDocs.length, hintLen);
 
   // combine hints and docs together
-  let searcheable = Object.keys(knownDocs).map(label => ({label: `${docHints[label]} ~ ${path.basename(knownDocs[label])}`, 
-                                                          description: `${vscode.workspace.asRelativePath(path.dirname(knownDocs[label]))}`, 
+  let searcheable = Object.keys(knownDocs).map(label => ({label: `${docHints[label]} ~ ${path.basename(knownDocs[label])}`,
+                                                          description: `${vscode.workspace.asRelativePath(path.dirname(knownDocs[label]))}`,
                                                           alwaysShow: true}));
   // set up quick-pick
   let quickPick = vscode.window.createQuickPick();
@@ -137,7 +139,7 @@ function quickJumpToTab()
         vscode.window.showTextDocument(
           vscode.Uri.file( fullPath ),
           { preview: false});
-        
+
         quickPick.dispose();
       }
     }
@@ -158,7 +160,7 @@ function quickJumpToTab()
         { preview: false});
     })
   });
-  
+
   quickPick.onDidHide(() => quickPick.dispose());
   quickPick.show();
 }
@@ -168,14 +170,14 @@ function generateFixedLenHints(count, hintLen)
   let dfs = (hint, list) => {
     if (list.length >= count) return list;
 
-    if (hint.length < hintLen) 
+    if (hint.length < hintLen)
     {
-      for (let i = 0; i < hintCharList.length; i++) 
+      for (let i = 0; i < hintCharList.length; i++)
       {
         dfs(hint + hintCharList[i], list);
       }
     }
-    else 
+    else
     {
       list.push(hint);
     }
@@ -189,8 +191,8 @@ function generateVariableLabelList(count)
 {
   let hintList = [''];
   let offset = 0;
-  while (   (hintList.length - offset < count) 
-         || (hintList.length == 1)) 
+  while (   (hintList.length - offset < count)
+         || (hintList.length == 1))
   {
     let hint = hintList[offset++];
     (new Set(hintCharList)).forEach((val) => {

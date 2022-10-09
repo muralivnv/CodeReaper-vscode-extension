@@ -2,7 +2,7 @@
 	"name": "codereaper",
 	"displayName": "Code Reaper",
 	"description": "",
-	"version": "1.0.8",
+	"version": "1.0.11",
 	"publisher": "muralivnv",
 	"repository": {
 		"url": "https://github.com/muralivnv/CodeReaper-vscode-extension"
@@ -368,6 +368,11 @@
 					"description": "Characters to use to hint when displaying MRU tabs",
 					"default": "asdjklyweio"
 				},
+				"codereaper.removeClosedTabsFromList": {
+					"type": "boolean",
+					"description": "Flag indicating whether to remove closed tabs from the list or not",
+					"default": false
+				},
 				"codereaper.ripgrepPath": {
 					"type": "string",
 					"description": "Path to Ripgrep",
@@ -381,12 +386,12 @@
 				"codereaper.fuzzySearchIncludeGlob": {
 					"type": "string",
 					"description": "Glob to use while fuzzy searching for files",
-					"default": "**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}"
+					"default": "\"**/*.{c,py,txt,cpp,h,cc,hpp,json,yaml,js,ts,md,csv,xlsx}\""
 				},
 				"codereaper.fuzzySearchExcludeGlob": {
 					"type": "string",
 					"description": "Glob to exclude while fuzzy searching for files",
-					"default": "!**/{node_modules}/**"
+					"default": "\"!**/{node_modules}/**\""
 				},
 				"codereaper.fuzzySearchContentRegExp": {
 					"type": "string",
@@ -401,7 +406,7 @@
 				"codereaper.fzfOptions": {
 					"type": "string",
 					"description": "FZF options",
-					"default": "--algo=v2 --color hl:221,hl+:74 --margin 1% --border"
+					"default": "--algo=v2 --color hl:221,hl+:74 --margin 1% --border -i "
 				}
 			}
 		}
